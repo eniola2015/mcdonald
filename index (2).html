@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>McDonald's | Burgers, Fries & More</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Speedee:wght@400;700;800&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        mcdRed: '#DA291C',
+                        mcdYellow: '#FFC72C',
+                        mcdDarkRed: '#B31B10',
+                        mcdBlack: '#27251F',
+                        mcdGray: '#F4F4F4',
+                        mcdDarkGray: '#4A4A4A'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mcd: ['Speedee', 'Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .active-tab {
+            border-bottom: 4px solid #FFC72C;
+            font-weight: 700;
+            color: #27251F !important;
+        }
+        .mcd-shadow {
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+        .food-card:hover .food-img {
+            transform: scale(1.06);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #FFC72C;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-mcdBlack font-sans antialiased min-h-screen flex flex-col justify-between selection:bg-mcdYellow selection:text-mcdBlack">
+
+    <!-- Top Announcement Bar -->
+    <div class="bg-mcdRed text-white text-xs md:text-sm font-semibold py-2 px-4 text-center flex justify-center items-center gap-2">
+        <span><i class="fa-solid fa-gift text-mcdYellow"></i> Get FREE 10pc McNuggets® when you download the app and join MyMcDonald's Rewards!</span>
+        <button onclick="handleAppDownload()" class="underline hover:text-mcdYellow transition">Download App</button>
+    </div>
+
+    <!-- Main Navigation Bar -->
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                
+                <!-- Logo & Main Menu Links -->
+                <div class="flex items-center gap-8">
+                    <!-- Brand Logo -->
+                    <button onclick="switchTab('menu')" class="flex items-center gap-2 focus:outline-none">
+                        <div class="bg-mcdRed p-2 rounded-xl flex items-center justify-center text-mcdYellow hover:opacity-95 transition shadow-md">
+                            <!-- Golden Arches SVG -->
+                            <svg class="w-8 h-8 fill-current" viewBox="0 0 100 85">
+                                <path d="M19.5 83.5V36.2c0-11.2 6.3-18.8 15.5-18.8 9 0 14.2 7.1 14.2 18.8v47.3h2.3V36.2c0-11.2 6.3-18.8 15.5-18.8 9 0 14.2 7.1 14.2 18.8v47.3h18.8V35C100 13.9 87.2 0 67.2 0 54.8 0 45.8 6.3 50 16.3 45.8 6.3 36.8 0 24.4 0 4.4 0 -8.4 13.9 -8.4 35v48.5h27.9z" transform="translate(8.4 0)"/>
+                            </svg>
+                        </div>
+                        <span class="font-extrabold text-2xl tracking-tight hidden sm:block text-mcdBlack">McDonald's</span>
+                    </button>
+
+                    <!-- Desktop Navigation Tabs -->
+                    <nav class="hidden md:flex space-x-6 text-sm font-semibold text-mcdDarkGray">
+                        <button id="nav-menu" onclick="switchTab('menu')" class="nav-btn py-6 hover:text-mcdRed transition active-tab">Our Menu</button>
+                        <button id="nav-rewards" onclick="switchTab('rewards')" class="nav-btn py-6 hover:text-mcdRed transition">MyMcDonald's Rewards</button>
+                        <button id="nav-deals" onclick="switchTab('deals')" class="nav-btn py-6 hover:text-mcdRed transition">Exclusive Deals</button>
+                        <button id="nav-locator" onclick="switchTab('locator')" class="nav-btn py-6 hover:text-mcdRed transition">Locate Store</button>
+                        <button onclick="handleAppDownload()" class="nav-btn py-6 text-mcdRed hover:text-mcdDarkRed transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-mobile-screen-button"></i> Download App
+                        </button>
+                    </nav>
+                </div>
+
+                <!-- Right Utility Bar (Order / Cart & Search) -->
+                <div class="flex items-center space-x-4">
+                    <button onclick="switchTab('locator')" class="hidden lg:flex items-center text-xs font-bold text-gray-700 bg-gray-100 hover:bg-gray-200 px-3 py-2 rounded-full transition">
+                        <i class="fa-solid fa-location-dot text-mcdRed mr-1.5"></i>
+                        <span id="header-store-name">Find Your McDonald's</span>
+                    </button>
+
+                    <!-- Cart Trigger Button -->
+                    <button onclick="switchTab('cart')" class="relative bg-mcdYellow hover:bg-yellow-400 text-mcdBlack font-bold px-4 py-2.5 rounded-full flex items-center gap-2 transition shadow-sm">
+                        <i class="fa-solid fa-bag-shopping text-lg"></i>
+                        <span class="hidden sm:inline">Your Order</span>
+                        <span id="cart-badge-count" class="bg-mcdRed text-white text-xs font-black rounded-full px-2 py-0.5">0</span>
+                    </button>
+
+                    <!-- Mobile Menu Button -->
+                    <button onclick="toggleMobileMenu()" class="md:hidden text-gray-700 hover:text-mcdBlack focus:outline-none p-2">
+                        <i class="fa-solid fa-bars text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Drawer Navigation -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-b border-gray-200 px-4 pt-2 pb-4 space-y-2">
+            <button onclick="switchTab('menu'); toggleMobileMenu()" class="block w-full text-left font-bold text-gray-800 py-2 border-b border-gray-100">Our Menu</button>
+            <button onclick="switchTab('rewards'); toggleMobileMenu()" class="block w-full text-left font-bold text-gray-800 py-2 border-b border-gray-100">MyMcDonald's Rewards</button>
+            <button onclick="switchTab('deals'); toggleMobileMenu()" class="block w-full text-left font-bold text-gray-800 py-2 border-b border-gray-100">Exclusive Deals</button>
+            <button onclick="switchTab('locator'); toggleMobileMenu()" class="block w-full text-left font-bold text-gray-800 py-2 border-b border-gray-100">Locate Store</button>
+            <button onclick="handleAppDownload()" class="block w-full text-left font-bold text-mcdRed py-2">
+                <i class="fa-solid fa-mobile-screen-button mr-2"></i> Download App
+            </button>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+        <!-- VIEW 1: OUR MENU SECTION -->
+        <section id="view-menu" class="tab-view space-y-8">
+            <!-- Hero Banner -->
+            <div class="relative bg-gradient-to-r from-red-700 to-mcdRed rounded-3xl overflow-hidden shadow-xl text-white p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-8">
+                <div class="space-y-4 max-w-xl z-10 text-center md:text-left">
+                    <span class="inline-block bg-mcdYellow text-mcdBlack text-xs font-black px-3 py-1 rounded-full uppercase tracking-wider">Fan Favorites</span>
+                    <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight leading-tight">Taste the Classics You Love</h1>
+                    <p class="text-red-100 text-lg">Crispy fries, juicy burgers, refreshing McCafé® beverages, and delightful breakfast items prepared fresh daily.</p>
+                    <div class="pt-2 flex flex-wrap gap-4 justify-center md:justify-start">
+                        <a href="#menu-grid" class="bg-mcdYellow hover:bg-yellow-400 text-mcdBlack font-extrabold px-6 py-3 rounded-full shadow-lg transition transform hover:-translate-y-0.5">Explore Full Menu</a>
+                        <button onclick="switchTab('deals')" class="bg-white/20 hover:bg-white/30 text-white font-bold px-6 py-3 rounded-full backdrop-blur-md transition">View Hot Deals</button>
+                    </div>
+                </div>
+                <div class="relative w-full md:w-1/2 flex justify-center">
+                    <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=800&q=80" alt="McDonalds Delicious Burger" class="rounded-2xl shadow-2xl object-cover max-h-72 w-full border-4 border-mcdYellow/30">
+                </div>
+            </div>
+
+            <!-- Menu Category Filter Pills -->
+            <div id="menu-grid" class="pt-4">
+                <div class="flex items-center justify-between mb-6 flex-wrap gap-4">
+                    <div>
+                        <h2 class="text-3xl font-extrabold text-mcdBlack">Explore Our Menu</h2>
+                        <p class="text-sm text-gray-500">Select a category to filter or order directly</p>
+                    </div>
+                    <div class="flex gap-2 overflow-x-auto pb-2 w-full md:w-auto custom-scrollbar">
+                        <button onclick="filterCategory('all')" class="cat-btn active-cat bg-mcdBlack text-white font-bold px-5 py-2.5 rounded-full text-sm whitespace-nowrap transition">All Items</button>
+                        <button onclick="filterCategory('burgers')" class="cat-btn bg-white border border-gray-300 text-gray-700 hover:border-mcdYellow font-bold px-5 py-2.5 rounded-full text-sm whitespace-nowrap transition">Burgers & Sandwiches</button>
+                        <button onclick="filterCategory('breakfast')" class="cat-btn bg-white border border-gray-300 text-gray-700 hover:border-mcdYellow font-bold px-5 py-2.5 rounded-full text-sm whitespace-nowrap transition">Breakfast</button>
+                        <button onclick="filterCategory('sides')" class="cat-btn bg-white border border-gray-300 text-gray-700 hover:border-mcdYellow font-bold px-5 py-2.5 rounded-full text-sm whitespace-nowrap transition">Fries & Sides</button>
+                        <button onclick="filterCategory('beverages')" class="cat-btn bg-white border border-gray-300 text-gray-700 hover:border-mcdYellow font-bold px-5 py-2.5 rounded-full text-sm whitespace-nowrap transition">McCafé® & Drinks</button>
+                    </div>
+                </div>
+
+                <!-- Food Items Grid Container -->
+                <div id="food-items-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <!-- Dynamic rendering via JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 2: MYMCDONALD'S REWARDS SECTION -->
+        <section id="view-rewards" class="tab-view hidden space-y-8">
+            <div class="bg-gradient-to-br from-yellow-400 via-mcdYellow to-amber-500 rounded-3xl p-8 md:p-12 text-mcdBlack shadow-xl relative overflow-hidden">
+                <div class="max-w-2xl space-y-4">
+                    <span class="bg-mcdBlack text-mcdYellow text-xs font-black px-3 py-1 rounded-full uppercase tracking-wider">Loyalty Club</span>
+                    <h1 class="text-4xl md:text-5xl font-black">MyMcDonald's Rewards</h1>
+                    <p class="text-lg font-medium opacity-90">Earn 100 points for every $1 spent. Unlock free Big Macs, Fries, McCafé drinks, and exclusive member perks!</p>
+                    
+                    <!-- Loyalty Status Card Mock -->
+                    <div class="bg-white/90 backdrop-blur-md p-6 rounded-2xl shadow-lg mt-6 space-y-4 border border-white">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="text-xs font-bold text-gray-500 uppercase">Your Current Balance</p>
+                                <p class="text-3xl font-black text-mcdRed"><span id="user-points">2,450</span> <span class="text-sm font-bold text-gray-700">Pts</span></p>
+                            </div>
+                            <span class="bg-red-100 text-mcdRed text-xs font-bold px-3 py-1 rounded-full">Gold Tier Member</span>
+                        </div>
+                        <!-- Progress Bar -->
+                        <div>
+                            <div class="flex justify-between text-xs font-bold mb-1 text-gray-600">
+                                <span>Progress to Next Free Meal (3,000 pts)</span>
+                                <span>81%</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                                <div class="bg-mcdRed h-full rounded-full" style="width: 81%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Rewards Unlock Tier Catalog -->
+            <div class="space-y-6">
+                <h2 class="text-2xl font-extrabold text-mcdBlack">Available Rewards</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm flex flex-col justify-between hover:border-mcdYellow transition">
+                        <div>
+                            <span class="bg-gray-100 text-gray-700 text-xs font-black px-2.5 py-1 rounded-md">1,500 Points</span>
+                            <h3 class="text-xl font-extrabold mt-3">Free McChicken® or Hash Browns</h3>
+                            <p class="text-sm text-gray-500 mt-1">Redeemable at any participating location on pickup or mobile order.</p>
+                        </div>
+                        <button onclick="redeemPoints(1500, 'McChicken')" class="mt-6 w-full bg-mcdYellow hover:bg-yellow-400 font-bold py-2.5 rounded-full transition">Redeem Reward</button>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm flex flex-col justify-between hover:border-mcdYellow transition">
+                        <div>
+                            <span class="bg-amber-100 text-amber-800 text-xs font-black px-2.5 py-1 rounded-md">3,000 Points</span>
+                            <h3 class="text-xl font-extrabold mt-3">Free 6pc McNuggets® or Medium Fries</h3>
+                            <p class="text-sm text-gray-500 mt-1">Our golden-crisp fries or tender chicken nuggets cooked to perfection.</p>
+                        </div>
+                        <button onclick="redeemPoints(3000, '6pc McNuggets')" class="mt-6 w-full bg-mcdYellow hover:bg-yellow-400 font-bold py-2.5 rounded-full transition">Redeem Reward</button>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm flex flex-col justify-between hover:border-mcdYellow transition">
+                        <div>
+                            <span class="bg-red-100 text-mcdRed text-xs font-black px-2.5 py-1 rounded-md">4,500 Points</span>
+                            <h3 class="text-xl font-extrabold mt-3">Free Big Mac® or Quarter Pounder®</h3>
+                            <p class="text-sm text-gray-500 mt-1">The flagship burgers with our legendary special sauce and fresh beef.</p>
+                        </div>
+                        <button onclick="redeemPoints(4500, 'Big Mac')" class="mt-6 w-full bg-mcdYellow hover:bg-yellow-400 font-bold py-2.5 rounded-full transition">Redeem Reward</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 3: EXCLUSIVE DEALS SECTION -->
+        <section id="view-deals" class="tab-view hidden space-y-6">
+            <div class="border-b border-gray-200 pb-4">
+                <h1 class="text-3xl font-black text-mcdBlack">Exclusive App & Online Deals</h1>
+                <p class="text-gray-500 text-sm">Save big on your daily favorites. Apply deal coupons directly to your bag!</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Deal Card 1 -->
+                <div class="bg-white border-2 border-dashed border-mcdRed/40 rounded-2xl p-6 flex flex-col md:flex-row gap-6 items-center shadow-sm">
+                    <img src="https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=300&q=80" class="w-28 h-28 object-cover rounded-xl" alt="Free Fries">
+                    <div class="flex-grow space-y-2 text-center md:text-left">
+                        <span class="bg-mcdRed text-white text-xs font-bold px-2 py-0.5 rounded">FREE FRY FRIDAY</span>
+                        <h3 class="text-xl font-extrabold text-mcdBlack">Free Medium Fries with $1+ Purchase</h3>
+                        <p class="text-xs text-gray-500">Valid every Friday in the mobile order app. Terms apply.</p>
+                        <button onclick="applyDeal('Free Medium Fries', 0.00)" class="bg-mcdYellow hover:bg-yellow-400 font-bold text-xs px-5 py-2 rounded-full transition">Apply to Order</button>
+                    </div>
+                </div>
+
+                <!-- Deal Card 2 -->
+                <div class="bg-white border-2 border-dashed border-mcdRed/40 rounded-2xl p-6 flex flex-col md:flex-row gap-6 items-center shadow-sm">
+                    <img src="https://images.unsplash.com/photo-1561758033-d89a9ad46330?auto=format&fit=crop&w=300&q=80" class="w-28 h-28 object-cover rounded-xl" alt="BOGO Burger">
+                    <div class="flex-grow space-y-2 text-center md:text-left">
+                        <span class="bg-mcdRed text-white text-xs font-bold px-2 py-0.5 rounded">BOGO $1</span>
+                        <h3 class="text-xl font-extrabold text-mcdBlack">Buy 1 Big Mac®, Get 1 for $1</h3>
+                        <p class="text-xs text-gray-500">Double the iconic flavor for just one dollar extra.</p>
+                        <button onclick="applyDeal('BOGO $1 Big Mac', 1.00)" class="bg-mcdYellow hover:bg-yellow-400 font-bold text-xs px-5 py-2 rounded-full transition">Apply to Order</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 4: STORE LOCATOR SECTION -->
+        <section id="view-locator" class="tab-view hidden space-y-6">
+            <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-4">
+                <h1 class="text-3xl font-extrabold text-mcdBlack">Find a McDonald's Near You</h1>
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <input type="text" id="store-search-input" placeholder="Enter City, State, or Zip Code..." class="flex-grow border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-mcdYellow focus:outline-none">
+                    <button onclick="searchStore()" class="bg-mcdYellow hover:bg-yellow-400 text-mcdBlack font-extrabold px-8 py-3 rounded-xl transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-magnifying-glass"></i> Search
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Store List Sidebar -->
+                <div class="space-y-4 max-h-96 overflow-y-auto custom-scrollbar pr-2" id="store-list-container">
+                    <!-- Populated via JS -->
+                </div>
+
+                <!-- Interactive Mock Map Box -->
+                <div class="lg:col-span-2 bg-gray-200 rounded-2xl overflow-hidden min-h-[350px] relative flex items-center justify-center border border-gray-300 shadow-inner">
+                    <div class="text-center p-6 bg-white/80 backdrop-blur-md rounded-2xl max-w-sm shadow-md">
+                        <i class="fa-solid fa-map-location-dot text-4xl text-mcdRed mb-3"></i>
+                        <h3 class="text-lg font-bold text-mcdBlack">Interactive Map Preview</h3>
+                        <p id="active-map-address" class="text-xs text-gray-600 mt-1">Showing locations around downtown center. Click 'Select Store' to set your primary pickup spot.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 5: SHOPPING CART & CHECKOUT SECTION -->
+        <section id="view-cart" class="tab-view hidden space-y-6">
+            <h1 class="text-3xl font-extrabold text-mcdBlack">Your Order Summary</h1>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Cart Items List -->
+                <div class="lg:col-span-2 bg-white rounded-2xl border border-gray-200 p-6 shadow-sm space-y-4">
+                    <div class="flex justify-between items-center border-b border-gray-100 pb-4">
+                        <h2 class="text-xl font-bold text-mcdBlack">Items in Bag</h2>
+                        <button onclick="clearCart()" class="text-xs font-bold text-mcdRed hover:underline">Clear All</button>
+                    </div>
+
+                    <div id="cart-items-list" class="space-y-4 divide-y divide-gray-100">
+                        <!-- JS renders items here -->
+                    </div>
+                </div>
+
+                <!-- Order Calculation Summary Sidebar -->
+                <div class="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm h-fit space-y-4">
+                    <h2 class="text-xl font-bold text-mcdBlack border-b border-gray-100 pb-3">Payment Summary</h2>
+
+                    <div class="space-y-2 text-sm text-gray-600">
+                        <div class="flex justify-between">
+                            <span>Subtotal</span>
+                            <span id="summary-subtotal" class="font-bold text-mcdBlack">$0.00</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Estimated Tax (8.875%)</span>
+                            <span id="summary-tax" class="font-bold text-mcdBlack">$0.00</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Delivery & Service Fee</span>
+                            <span id="summary-fee" class="font-bold text-mcdBlack">$0.00</span>
+                        </div>
+                        <div class="border-t border-gray-200 pt-3 flex justify-between text-lg font-black text-mcdBlack">
+                            <span>Total</span>
+                            <span id="summary-total" class="text-mcdRed">$0.00</span>
+                        </div>
+                    </div>
+
+                    <button onclick="checkoutOrder()" class="w-full bg-mcdYellow hover:bg-yellow-400 text-mcdBlack font-black py-3.5 rounded-full shadow-md transition text-base uppercase tracking-wide">
+                        Place Order Now
+                    </button>
+
+                    <div class="text-center text-xs text-gray-400 pt-2 flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-shield-halved text-mcdRed"></i>
+                        <span>Contactless Pickup & Safe McDelivery®</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Modal Notification Banner -->
+    <div id="modal-toast" class="fixed bottom-6 right-6 bg-mcdBlack text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-3 transition transform translate-y-32 opacity-0 z-50">
+        <div id="toast-icon" class="text-mcdYellow text-xl"><i class="fa-solid fa-circle-check"></i></div>
+        <div>
+            <p id="toast-title" class="font-bold text-sm">Item Added</p>
+            <p id="toast-desc" class="text-xs text-gray-300">Your bag was updated successfully.</p>
+        </div>
+    </div>
+
+    <!-- Footer Section -->
+    <footer class="bg-white border-t border-gray-200 pt-12 pb-8 mt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-sm">
+                <div>
+                    <h4 class="font-bold text-mcdBlack mb-3 uppercase text-xs tracking-wider">About Us</h4>
+                    <ul class="space-y-2 text-gray-600">
+                        <li><a href="#" class="hover:text-mcdRed transition">Our History</a></li>
+                        <li><a href="#" class="hover:text-mcdRed transition">Leadership Team</a></li>
+                        <li><a href="#" class="hover:text-mcdRed transition">Values in Action</a></li>
+                        <li><a href="#" class="hover:text-mcdRed transition">News & Press</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold text-mcdBlack mb-3 uppercase text-xs tracking-wider">Careers</h4>
+                    <ul class="space-y-2 text-gray-600">
+                        <li><a href="#" class="hover:text-mcdRed transition">Education Opportunities</a></li>
+                        <li><a href="#" class="hover:text-mcdRed transition">Employee Perks</a></li>
+                        <li><a href="#" class="hover:text-mcdRed transition">Apply Now</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold text-mcdBlack mb-3 uppercase text-xs tracking-wider">Services</h4>
+                    <ul class="space-y-2 text-gray-600">
+                        <li><a href="#" class="hover:text-mcdRed transition">Wi-Fi & Mobile Order</a></li>
+                        <li><a href="#" class="hover:text-mcdRed transition">McDelivery® Services</a></li>
+                        <li><a href="#" class="hover:text-mcdRed transition">Gift Cards</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold text-mcdBlack mb-3 uppercase text-xs tracking-wider">Contact Us</h4>
+                    <ul class="space-y-2 text-gray-600">
+                        <li><a href="#" class="hover:text-mcdRed transition">Customer Service</a></li>
+                        <li><a href="#" class="hover:text-mcdRed transition">Frequently Asked Questions</a></li>
+                        <li><a href="#" class="hover:text-mcdRed transition">Feedback</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="border-t border-gray-100 pt-6 flex flex-col md:flex-row items-center justify-between text-xs text-gray-500 gap-4">
+                <div class="flex items-center space-x-4">
+                    <span class="font-bold text-mcdBlack">© 2026 McDonald's. All Rights Reserved.</span>
+                    <a href="#" class="hover:underline">Privacy Policy</a>
+                    <a href="#" class="hover:underline">Terms & Conditions</a>
+                </div>
+                <!-- Social Media Icons -->
+                <div class="flex space-x-4 text-base text-gray-600">
+                    <a href="#" class="hover:text-mcdRed"><i class="fa-brands fa-facebook"></i></a>
+                    <a href="#" class="hover:text-mcdRed"><i class="fa-brands fa-x-twitter"></i></a>
+                    <a href="#" class="hover:text-mcdRed"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="#" class="hover:text-mcdRed"><i class="fa-brands fa-youtube"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Data Store: Food items with high resolution images
+        const foodDatabase = [
+            { id: 1, name: 'Big Mac®', category: 'burgers', price: 5.99, image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=500&q=80', desc: 'Two 100% pure beef patties with Big Mac sauce on a sesame seed bun.' },
+            { id: 2, name: 'Quarter Pounder® with Cheese', category: 'burgers', price: 6.49, image: 'https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=500&q=80', desc: 'Fresh beef patty cooked when you order, topped with melted cheese.' },
+            { id: 3, name: '10 Piece Chicken McNuggets®', category: 'burgers', price: 5.49, image: 'https://images.unsplash.com/photo-1562967914-608f82629710?auto=format&fit=crop&w=500&q=80', desc: 'Tender, juicy chicken McNuggets with your choice of dipping sauces.' },
+            { id: 4, name: 'World Famous Fries®', category: 'sides', price: 3.29, image: 'https://images.unsplash.com/photo-1573080496219-bb080dd4f877?auto=format&fit=crop&w=500&q=80', desc: 'Golden, crisp on the outside and fluffy on the inside.' },
+            { id: 5, name: 'Egg McMuffin®', category: 'breakfast', price: 4.59, image: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?auto=format&fit=crop&w=500&q=80', desc: 'Freshly cracked grade A egg with Canadian bacon and melted cheese.' },
+            { id: 6, name: 'Happy Meal® (Hamburger)', category: 'burgers', price: 4.89, image: 'https://images.unsplash.com/photo-1619881589724-4f0524458f33?auto=format&fit=crop&w=500&q=80', desc: 'Includes kid-sized fries, apple slices, and a fun surprise toy.' },
+            { id: 7, name: 'Iced Caramel McCafé® Macchiato', category: 'beverages', price: 3.99, image: 'https://images.unsplash.com/photo-1517701604599-bb29b565090c?auto=format&fit=crop&w=500&q=80', desc: 'Rich espresso, milk, buttery caramel drizzle served over ice.' },
+            { id: 8, name: 'Baked Apple Pie', category: 'sides', price: 1.89, image: 'https://images.unsplash.com/photo-1568571780765-9276ac8b75a2?auto=format&fit=crop&w=500&q=80', desc: 'Lattice crust topped with cinnamon sugar and filled with real apples.' }
+        ];
+
+        // Store Locations Database
+        const storeDatabase = [
+            { id: 1, name: "McDonald's Downtown Center", address: "123 Main St, Metro Center", hours: "Open 24 Hours", phone: "(555) 019-2831" },
+            { id: 2, name: "McDonald's Westside Mall", address: "892 West Parkway Blvd", hours: "6:00 AM - 11:00 PM", phone: "(555) 014-9920" },
+            { id: 3, name: "McDonald's Airport Plaza", address: "404 Flight Way, Terminal 2", hours: "Open 24 Hours", phone: "(555) 017-3382" }
+        ];
+
+        // State Management
+        let cart = [];
+        let selectedCategory = 'all';
+
+        window.onload = function() {
+            renderMenuGrid();
+            renderStoreList();
+            updateCartUI();
+        };
+
+        // Device detection logic for App Download redirection
+        function handleAppDownload() {
+            const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+
+            // Android check
+            if (/android/i.test(userAgent)) {
+                window.open("https://play.google.com/store/apps/details?id=com.mcdonalds.app", "_blank");
+            } 
+            // iOS check
+            else if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
+                window.open("https://apps.apple.com/us/app/mcdonalds/id922103212", "_blank");
+            } 
+            // Desktop / PC (Microsoft Store / Web app fallback)
+            else {
+                window.open("https://apps.microsoft.com/detail/9nblggh43e3f", "_blank");
+            }
+        }
+
+        // Tab Switching Engine
+        function switchTab(tabId) {
+            // Hide all tab views
+            document.querySelectorAll('.tab-view').forEach(view => {
+                view.classList.add('hidden');
+            });
+
+            // Remove active classes on nav
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active-tab');
+            });
+
+            // Show target tab
+            const targetView = document.getElementById(`view-${tabId}`);
+            if (targetView) targetView.classList.remove('hidden');
+
+            // Highlight nav button if existing
+            const targetNav = document.getElementById(`nav-${tabId}`);
+            if (targetNav) targetNav.classList.add('active-tab');
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Mobile drawer toggle
+        function toggleMobileMenu() {
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenu.classList.toggle('hidden');
+        }
+
+        // Render Menu Items
+        function renderMenuGrid() {
+            const container = document.getElementById('food-items-container');
+            const items = selectedCategory === 'all' 
+                ? foodDatabase 
+                : foodDatabase.filter(item => item.category === selectedCategory);
+
+            container.innerHTML = items.map(item => `
+                <div class="food-card bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition flex flex-col justify-between p-4">
+                    <div>
+                        <div class="overflow-hidden rounded-xl mb-4 h-44 bg-gray-100 flex items-center justify-center">
+                            <img src="${item.image}" alt="${item.name}" class="food-img w-full h-full object-cover transition duration-300">
+                        </div>
+                        <div class="flex justify-between items-start mb-1">
+                            <h3 class="font-extrabold text-lg text-mcdBlack leading-tight">${item.name}</h3>
+                            <span class="font-black text-mcdRed text-base ml-2">$${item.price.toFixed(2)}</span>
+                        </div>
+                        <p class="text-xs text-gray-500 mb-4 line-clamp-2">${item.desc}</p>
+                    </div>
+                    <button onclick="addToCart(${item.id})" class="w-full bg-mcdYellow hover:bg-yellow-400 text-mcdBlack font-extrabold py-2.5 rounded-full transition text-sm flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-plus text-xs"></i> Add to Order
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        // Filter Menu Categories
+        function filterCategory(cat) {
+            selectedCategory = cat;
+            document.querySelectorAll('.cat-btn').forEach(btn => {
+                btn.classList.remove('bg-mcdBlack', 'text-white');
+                btn.classList.add('bg-white', 'text-gray-700');
+            });
+
+            event.currentTarget.classList.remove('bg-white', 'text-gray-700');
+            event.currentTarget.classList.add('bg-mcdBlack', 'text-white');
+
+            renderMenuGrid();
+        }
+
+        // Add Item to Shopping Cart
+        function addToCart(itemId) {
+            const item = foodDatabase.find(i => i.id === itemId);
+            if (!item) return;
+
+            const existingIndex = cart.findIndex(c => c.id === itemId);
+            if (existingIndex > -1) {
+                cart[existingIndex].quantity += 1;
+            } else {
+                cart.push({ ...item, quantity: 1 });
+            }
+
+            updateCartUI();
+            showToast('Added to Order!', `${item.name} is in your bag.`);
+        }
+
+        // Update Cart Counts & Totals
+        function updateCartUI() {
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            document.getElementById('cart-badge-count').innerText = totalItems;
+
+            const cartContainer = document.getElementById('cart-items-list');
+            if (cart.length === 0) {
+                cartContainer.innerHTML = `<div class="text-center py-12 text-gray-400">Your order bag is empty. Explore our menu to add items!</div>`;
+            } else {
+                cartContainer.innerHTML = cart.map(item => `
+                    <div class="flex items-center justify-between pt-4 first:pt-0">
+                        <div class="flex items-center gap-4">
+                            <img src="${item.image}" class="w-16 h-16 object-cover rounded-xl" alt="${item.name}">
+                            <div>
+                                <h4 class="font-bold text-sm text-mcdBlack">${item.name}</h4>
+                                <p class="text-xs text-mcdRed font-bold">$${(item.price * item.quantity).toFixed(2)}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <button onclick="changeQty(${item.id}, -1)" class="w-8 h-8 rounded-full bg-gray-100 font-bold hover:bg-gray-200">-</button>
+                            <span class="font-bold text-sm">${item.quantity}</span>
+                            <button onclick="changeQty(${item.id}, 1)" class="w-8 h-8 rounded-full bg-gray-100 font-bold hover:bg-gray-200">+</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // Calculations
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const tax = subtotal * 0.08875;
+            const fee = subtotal > 0 ? 2.49 : 0;
+            const total = subtotal + tax + fee;
+
+            document.getElementById('summary-subtotal').innerText = `$${subtotal.toFixed(2)}`;
+            document.getElementById('summary-tax').innerText = `$${tax.toFixed(2)}`;
+            document.getElementById('summary-fee').innerText = `$${fee.toFixed(2)}`;
+            document.getElementById('summary-total').innerText = `$${total.toFixed(2)}`;
+        }
+
+        function changeQty(id, delta) {
+            const idx = cart.findIndex(i => i.id === id);
+            if (idx > -1) {
+                cart[idx].quantity += delta;
+                if (cart[idx].quantity <= 0) {
+                    cart.splice(idx, 1);
+                }
+            }
+            updateCartUI();
+        }
+
+        function clearCart() {
+            cart = [];
+            updateCartUI();
+        }
+
+        // Deal Application
+        function applyDeal(dealName, dealCost) {
+            cart.push({ id: Date.now(), name: `DEAL: ${dealName}`, price: dealCost, quantity: 1, image: 'https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=200&q=80' });
+            updateCartUI();
+            showToast('Deal Applied!', `${dealName} added to your bag.`);
+            switchTab('cart');
+        }
+
+        // Rewards Points Deduction Mock
+        function redeemPoints(pointsCost, rewardItem) {
+            const currentPts = parseInt(document.getElementById('user-points').innerText.replace(',', ''));
+            if (currentPts >= pointsCost) {
+                document.getElementById('user-points').innerText = (currentPts - pointsCost).toLocaleString();
+                cart.push({ id: Date.now(), name: `REWARD: Free ${rewardItem}`, price: 0.00, quantity: 1, image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=200&q=80' });
+                updateCartUI();
+                showToast('Reward Redeemed!', `Enjoy your free ${rewardItem}.`);
+            } else {
+                showToast('Insufficient Points', 'Keep ordering to earn more points!');
+            }
+        }
+
+        // Store Search Render
+        function renderStoreList() {
+            const container = document.getElementById('store-list-container');
+            container.innerHTML = storeDatabase.map((store, i) => `
+                <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm space-y-2 hover:border-mcdYellow transition">
+                    <div class="flex justify-between items-start">
+                        <h4 class="font-bold text-mcdBlack text-sm">${store.name}</h4>
+                        <span class="text-xs bg-green-100 text-green-800 font-bold px-2 py-0.5 rounded">${store.hours}</span>
+                    </div>
+                    <p class="text-xs text-gray-500">${store.address}</p>
+                    <p class="text-xs text-gray-400">${store.phone}</p>
+                    <button onclick="selectStore('${store.name}')" class="mt-2 w-full bg-gray-100 hover:bg-mcdYellow font-bold text-xs py-2 rounded-lg transition">Select Store</button>
+                </div>
+            `).join('');
+        }
+
+        function selectStore(name) {
+            document.getElementById('header-store-name').innerText = name;
+            document.getElementById('active-map-address').innerText = `Primary Store set to ${name}.`;
+            showToast('Location Updated', `Selected ${name}`);
+        }
+
+        function checkoutOrder() {
+            if (cart.length === 0) {
+                showToast('Bag Empty', 'Please add items before placing an order.');
+                return;
+            }
+            showToast('Order Placed!', 'Thank you! Your food is being prepared.');
+            clearCart();
+        }
+
+        // Toast Helper
+        function showToast(title, desc) {
+            const toast = document.getElementById('modal-toast');
+            document.getElementById('toast-title').innerText = title;
+            document.getElementById('toast-desc').innerText = desc;
+
+            toast.classList.remove('translate-y-32', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-32', 'opacity-0');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
